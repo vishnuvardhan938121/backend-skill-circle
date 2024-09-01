@@ -1,0 +1,28 @@
+{
+  "name": "skill-circle-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bhavani0310/Skill-Circle-BackEnd.git"
+  },
+  "author": "Bhavani Prasad",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Bhavani0310/Skill-Circle-BackEnd/issues"
+  },
+  "homepage": "https://github.com/Bhavani0310/Skill-Circle-BackEnd#readme",
+  "dependencies": {
+    "aws-sdk": "^2.1687.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "joi": "^17.13.3",
+    "mongoose": "^8.6.0",
+    "nodemon": "^3.1.4"
+  }
+}

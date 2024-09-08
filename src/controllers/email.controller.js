@@ -41,7 +41,7 @@ const handleSendEmail = async (payload) => {
         .catch((error) => {
             console.log(
                 ErrorLogConstant.emailController.handleSendEmailErrorLog,
-                error.message,
+                error,
             );
             return false;
         });

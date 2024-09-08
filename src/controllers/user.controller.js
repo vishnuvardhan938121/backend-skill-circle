@@ -150,9 +150,9 @@ exports.handleOnBoarding = async (req, res) => {
             });
         }
 
-        const { userId } = req.userSession;
+        const { userId } = req.providerSession;
 
-        const checkIsUserExists = await User.findOne({
+        const checkIsUserExists = await Service.findOne({
             userId,
         });
         if (!checkIsUserExists) {
@@ -174,7 +174,7 @@ exports.handleOnBoarding = async (req, res) => {
             const allServicesExist = servicesExist.every((exists) => exists);
 
             if (allServicesExist) {
-                await User.findOneAndUpdate(
+                await Service.findOneAndUpdate(
                     {
                         userId,
                     },

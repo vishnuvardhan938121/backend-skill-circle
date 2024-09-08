@@ -8,6 +8,7 @@ exports.uploadImageToS3 = async (fileName, file) => {
             Body: file.buffer,
             Key: fileName,
             ContentType: file.mimetype,
+            ACL: 'public-read'
         };
 
         await s3Client.upload(uploadParams).promise();
@@ -26,9 +27,9 @@ exports.removeImageFromS3 = async (fileName) => {
         };
 
         await s3Client.deleteObject(deleteParams).promise();
-        return true; // Image removed successfully
+        return true; 
     } catch (error) {
         console.error("Error removing image from S3:", error);
-        return false; // Failed to remove image
+        return false; 
     }
 };

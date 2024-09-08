@@ -14,8 +14,8 @@ module.exports = {
             "🚀 ~ file: auth.controller.js ~ handleSendVerificationEmail ~ err",
     },
     authServiceProviderController: {
-        handleAddServiceProviderErrorLog:
-            "🚀 ~ file: authServiceProvider.controller.js ~ handleAddServiceProvider ~ err",
+        handleRegisterErrorLog:
+            "🚀 ~ file: authServiceProvider.controller.js ~ handleRegister ~ err",
         handleUpdateServiceProviderErrorLog:
             "🚀 ~ file: authServiceProvider.controller.js ~ handleUpdateServiceProvider ~ err",
         handleLoginErrorLog:

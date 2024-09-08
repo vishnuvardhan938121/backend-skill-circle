@@ -9,6 +9,7 @@ module.exports = {
     ROLE_DOWNGRADE_NOT_ALLOWED: "Role downgrade not allowed!",
 
     // User messages
+    USER_CREATED:"User Created Successfully",
     USER_ID_REQUIRED: "User Id is required!",
     USER_NOT_FOUND: "User Not Found!",
     USER_NOT_ACTIVE: "User Not Active!",
@@ -18,6 +19,7 @@ module.exports = {
     USER_UPDATED_SUCCESSFULLY: "User updated successfully!",
 
     // SERVICE_PROVIDER messages
+    SERVICE_PROVIDER_CREATED:"Service-Provider Created Successfully",
     SERVICE_PROVIDER_ID_REQUIRED: "SERVICE_PROVIDER Id is required!",
     SERVICE_PROVIDER_NOT_FOUND: "Service-Provider Not Found!",
     SERVICE_PROVIDER_ALREADY_EXISTS: "Service-Provider already exist!",
@@ -30,6 +32,7 @@ module.exports = {
     CONFIG_ALREADY_EXIST: "Config already exist!",
 
     // Email messages
+    EMAIL_NOT_VERIFIED:"Email is not verified. Verify your Email ID",
     VERIFICATION_EMAIL_SENT_SUCCESSFULLY:
         "Verification email sent successfully!",
     VERIFICATION_EMAIL_SENT_FAILED: "Verification email sent failed!",

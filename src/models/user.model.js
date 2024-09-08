@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Joi = require("joi");
+const { v4: uuidv4 } = require('uuid');
 
 const userSchema = new mongoose.Schema(
   {
@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       default: () => {
-        return Joi.generateUniqueId();
+        return uuidv4();
       },
     },
     username:{
@@ -60,6 +60,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isActive:{
+      type:Boolean,
+      default: false,
+    }
   },
   { timestamps: true }
 );

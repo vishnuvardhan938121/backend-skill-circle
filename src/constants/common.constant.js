@@ -3,7 +3,7 @@ module.exports = {
     email: {
         charSet: "UTF-8",
         source: {
-            tech_team: "SkillCircle Team <tech@getSkillCircle.in>",
+            tech_team: "SkillCircle Team <bhavaniprasad0141@gmail.com>",
         },
         verificationEmail: {
             subject: "SkillCircle - Email Address Verification Request",

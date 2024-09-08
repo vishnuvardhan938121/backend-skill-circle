@@ -7,7 +7,7 @@ const serviceProviderSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    name: {
+    username: {
       type: String,
       required: true,
     },

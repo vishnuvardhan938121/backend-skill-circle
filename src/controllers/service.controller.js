@@ -11,29 +11,17 @@ const ErrorLogConstant = require("../constants/error-log.constant");
 const generateUUID = require("../helpers/uuid.helper");
 
 // Importing models
-const {Service} = require("../models/service.model");
+const {Service,ServiceCategory} = require("../models/service.model");
 
 // Importing Controllers
 const imageController = require("./image.controller");
 
 exports.handleCreateService = async (req, res) => {
     try {
-        const serviceValidation = Joi.object({
-            serviceName: Joi.string().required(),
-            categoryId: Joi.string().required(), 
-            
-        });
+       
 
-        const { error } = serviceValidation.validate(req.body);
-
-        if (error) {
-            return res.status(HttpStatusCode.BadRequest).json({
-                status: HttpStatusConstant.BAD_REQUEST,
-                code: HttpStatusCode.BadRequest,
-                message: error.details[0].message.replace(/"/g, ""),
-            });
-        } else {
-            const { serviceName, categoryId, image } = req.body; // Adjust based on your actual service fields
+        
+            const { serviceName, categoryId, image } = req.body; 
 
             const isServiceExists = await Service.findOne({
                 categoryId,
@@ -47,10 +35,12 @@ exports.handleCreateService = async (req, res) => {
                     message: ResponseMessageConstant.SERVICE_ALREADY_EXISTS, 
                 });
             } else {
-                const serviceId = generateUUID();
-
+               
                 const imageName = generateUUID();
 
+                if(req.file){
+                console.log("hii")
+                }
                 const imageUrl = await imageController.uploadImageToS3(
                     imageName,
                     req.file,
@@ -65,7 +55,6 @@ exports.handleCreateService = async (req, res) => {
                 }
 
                 const newService = await Service.create({
-                    serviceId,
                     serviceName: serviceName,
                     categoryId,
                     imageUrl,
@@ -76,7 +65,7 @@ exports.handleCreateService = async (req, res) => {
                     data: newService,
                 });
             }
-        }
+        
     } catch (error) {
         console.log(
             ErrorLogConstant.serviceController.handleCreateServiceErrorLog, 
@@ -93,6 +82,7 @@ exports.handleGetAllServices = async (req, res) => {
     try {
         const { searchTerm = "" } = req.query;
 
+
         const serviceResponse = await Service.aggregate([
             {
                 $match: {
@@ -101,7 +91,7 @@ exports.handleGetAllServices = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "ServiceCategory", 
+                    from: "servicecategories", 
                     localField: "categoryId",
                     foreignField: "categoryId",
                     as: "category",
@@ -115,15 +105,12 @@ exports.handleGetAllServices = async (req, res) => {
                     _id: "$category.categoryName",
                     services: {
                         $push: {
-                            _id: "$_id",
+                            id: "$_id",
                             serviceId: "$serviceId",
-                            serviceName: "$serviceName",
-                            categoryId: "$categoryId",
-                            categoryName: "$category.categoryName",
-                            imageUrl: "$imageUrl", 
-                            createdAt: "$createdAt",
-                            updatedAt: "$updatedAt",
-                            __v: "$__v",
+                            name: "$serviceName",
+                            rating:"$rating",
+                            category:"$category.categoryName",
+                            image: "$imageUrl", 
                         },
                     },
                 },
@@ -146,3 +133,4 @@ exports.handleGetAllServices = async (req, res) => {
         });
     }
 };
+

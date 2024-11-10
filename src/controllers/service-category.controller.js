@@ -41,6 +41,7 @@ exports.handleCreateServiceCategory = async (req, res) => {
                     message: ResponseMessageConstant.SERVICE_CATEGORY_ALREADY_EXISTS, 
                 });
             } else {
+                
                 const categoryId = generateUUID(); 
 
                 const newServiceCategory = await ServiceCategory.create({

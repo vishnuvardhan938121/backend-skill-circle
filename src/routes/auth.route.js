@@ -3,7 +3,7 @@ const router = express.Router();
 
 // Importing controllers
 const authController = require("../controllers/auth.controller");
-
+const userController = require("../controllers/user.controller")
 // Importing middlewares
 const verifyUser = require("../middlewares/user.mw");
 
@@ -29,6 +29,8 @@ router.post(
     "/reset-password/:password_reset_token",
     authController.handleResetPass,
 );
+
+router.post("/checkUserName",userController.handleCheckUsernameAvailability);
 
 // Session routes
 router.post("/verify-session", authController.handleVerifySession);

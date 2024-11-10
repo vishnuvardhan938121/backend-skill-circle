@@ -41,22 +41,25 @@ module.exports = {
         handleSendVerificationEmailErrorLog:
             "🚀 ~ file: user.controller.js ~ handleSendVerificationEmail ~ err",
         handleOnBoardingErrorLog:
-            "🚀 ~ file: user.controller.js ~ handleOnBoarding ~ err",
+            "🚀 ~ file: user.controller.js ~ handleOnBoarding ~ err ",
         handleGetUserProfileInfoErrorLog:
-            "🚀 ~ file: user.controller.js ~ handleGetUserProfileInfo ~ err",
+            "🚀 ~ file: user.controller.js ~ handleGetUserProfileInfo ~ err ",
     },
     serviceController: {
         handleCreateServiceErrorLog:
-            "🚀 ~ file: service.controller.js ~ handleCreateService ~ err",
+            "🚀 ~ file: service.controller.js ~ handleCreateService ~ err ",
         handleGetAllServicesErrorLog:
-            "🚀 ~ file: service.controller.js ~ handleGetAllServices ~ err",
+            "🚀 ~ file: service.controller.js ~ handleGetAllServices ~ err ",
     },
     serviceCategoryController: {
         handleCreateServiceCategoryErrorLog:
-            "🚀 ~ file: service-category.controller.js ~ handleCreateServiceCategory ~ err",
+            "🚀 ~ file: service-category.controller.js ~ handleCreateServiceCategory ~ err ",
         handleGetAllServiceCategoriesErrorLog:
-            "🚀 ~ file: service-category.controller.js ~ handleGetAllServiceCategories ~ err",
+            "🚀 ~ file: service-category.controller.js ~ handleGetAllServiceCategories ~ err ",
         handleUpdateServiceCategoryErrorLog:
-            "🚀 ~ file: service-category.controller.js ~ handleUpdateServiceCategory ~ err",
+            "🚀 ~ file: service-category.controller.js ~ handleUpdateServiceCategory ~ err ",
     },
+    reviewController:{
+        createReviewErrorLog:"🚀 ~ file: review.controller.js ~ createReview ~ err "
+    }
 };

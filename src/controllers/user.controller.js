@@ -17,13 +17,13 @@ const generateUUID = require("../helpers/uuid.helper");
 
 exports.handleCheckUsernameAvailability = async (req, res) => {
     try {
-        const { username } = req.query;
+        const { username } = req.body;
 
         const userValidation = Joi.object({
             username: Joi.string().required(),
         });
 
-        const { error } = userValidation.validate(req.query);
+        const { error } = userValidation.validate(req.body);
 
         if (error) {
             return res.status(HttpStatusCode.BadRequest).json({
@@ -48,6 +48,7 @@ exports.handleCheckUsernameAvailability = async (req, res) => {
                 status: HttpStatusConstant.OK,
                 code: HttpStatusCode.Ok,
                 message: ResponseMessageConstant.USERNAME_AVAILABLE,
+                isAvailable:true
             });
         }
     } catch (error) {

@@ -1,50 +1,40 @@
-const CommonConstant = require("../constants/common.constant");
-const ErrorLogConstant = require("../constants/error-log.constant");
-
-const { sesClient } = require("../configs/aws.config");
+const nodemailer = require("nodemailer");
 
 const handleSendEmail = async (payload) => {
-    const {
-        toAddresses = [],
-        subject = "",
-        source = "",
-        htmlData = "",
-        ccEmails = [],
-    } = payload;
+  const {
+    toAddresses = [],
+    subject = "",
+    source = "",
+    htmlData = "",
+    ccEmails = [],
+  } = payload;
 
-    const params = {
-        Destination: {
-            CcAddresses: ccEmails,
-            ToAddresses: toAddresses,
-        },
-        Message: {
-            Body: {
-                Html: {
-                    Charset: CommonConstant.email.charSet,
-                    Data: htmlData,
-                },
-            },
-            Subject: {
-                Charset: CommonConstant.email.charSet,
-                Data: subject,
-            },
-        },
-        Source: source,
-    };
+  const transporter = nodemailer.createTransport({
+    host: process.env.MAIL_HOST,
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.MAIL_USERNAME,
+      pass: process.env.MAIL_PASSWORD,
+    },
+    tls: {
+      minVersion: "TLSv1.2",
+    },
+  });
 
-    return await sesClient
-        .sendEmail(params)
-        .promise()
-        .then(() => {
-            return true;
-        })
-        .catch((error) => {
-            console.log(
-                ErrorLogConstant.emailController.handleSendEmailErrorLog,
-                error,
-            );
-            return false;
-        });
+  try {
+    await transporter.sendMail({
+      from: source,
+      to: toAddresses.join(", "),
+      cc: ccEmails.join(", "),
+      subject: subject,
+      html: htmlData,
+    });
+    return true;
+  } catch (error) {
+    console.error("Error sending email:", error);
+    return false;
+  }
 };
 
 module.exports = handleSendEmail;

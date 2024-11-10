@@ -308,7 +308,7 @@ exports.handleSendVerificationEmail = async (req, res) => {
       toAddresses: [email],
       source: CommonConstant.email.source.tech_team,
       subject: CommonConstant.email.verificationEmail.subject,
-      htmlData: `<p>Hello User <br/>Welcome to SkillCircle<br/> Your verification link <a href="${process.env.CLIENT_URL}/verify-email/${emailAccessTokenId}">Verfiy Email</a></p>`,
+      htmlData: `<p>Hello User <br/>Welcome to SkillCircle<br/> Your verification link <a href="${process.env.CLIENT_URL}/verify-email/${emailAccessTokenId}">Verify Email</a></p>`,
     });
 
     if (isEmailSend) {
@@ -327,7 +327,7 @@ exports.handleSendVerificationEmail = async (req, res) => {
   } catch (error) {
     console.log(
       ErrorLogConstant.userController.handleSendVerificationEmailErrorLog,
-      error.message
+      error
     );
     return res.status(HttpStatusCode.InternalServerError).json({
       status: HttpStatusConstant.ERROR,

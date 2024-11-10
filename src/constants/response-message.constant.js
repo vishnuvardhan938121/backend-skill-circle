@@ -60,5 +60,7 @@ module.exports = {
     SERVICE_CATEGORY_ID_REQUIRED: "Service category id is required!",
     SERVICE_CATEGORY_UPDATED_SUCCESSFULLY: "Service category updated successfully!",
     
-
+    //rating messages
+    REVIEW_CREATED:"Review Created",
+    REVIEW_ALREADY_EXISTS:"Review Added Already"
 };

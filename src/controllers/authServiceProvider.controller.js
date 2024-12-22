@@ -17,7 +17,7 @@ const ErrorLogConstant = require("../constants/error-log.constant");
 // Importing Helpers
 const generateUUID = require("../helpers/uuid.helper");
 const { signToken, verifyToken } = require("../helpers/jwt.helper");
-const getSkillCircleSignature = require("../helpers/cookie.helper");
+const getProviderSignature = require("../helpers/cookie.helper");
 
 // Importing Controllers
 const handleSendEmail = require("./email.controller");
@@ -44,11 +44,11 @@ exports.handleRegister = async (req, res) => {
         message: error.details[0].message.replace(/"/g, ""),
       });
     }
-    const ServiceProvider = await ServiceProvider.findOne({
+    const ExistingServiceProvider = await ServiceProvider.findOne({
       email,
     });
 
-    if (ServiceProvider) {
+    if (ExistingServiceProvider) {
       return res.status(HttpStatusCode.Conflict).json({
         status: HttpStatusConstant.CONFLICT,
         code: HttpStatusCode.Conflict,
@@ -126,12 +126,16 @@ exports.handleLogin = async (req, res) => {
         }
         console.log(generatedAccessToken);
         res
-          .cookie(CommonConstant.signatureCookieName, generatedAccessToken, {
-            maxAge: 86400000,
-            httpOnly: false,
-            secure: true,
-            sameSite: "none",
-          })
+          .cookie(
+            CommonConstant.signatureProviderCookieName,
+            generatedAccessToken,
+            {
+              maxAge: 86400000,
+              httpOnly: false,
+              secure: false,
+              sameSite: "lax",
+            }
+          )
           .status(HttpStatusCode.Ok)
           .json({
             status: HttpStatusConstant.OK,
@@ -148,6 +152,43 @@ exports.handleLogin = async (req, res) => {
   } catch (error) {
     console.log(
       ErrorLogConstant.authServiceProviderController.handleLoginErrorLog,
+      error.message
+    );
+    res.status(HttpStatusCode.InternalServerError).json({
+      status: HttpStatusConstant.ERROR,
+      code: HttpStatusCode.InternalServerError,
+    });
+  }
+};
+
+exports.handleGoogleLogin = async (req, res) => {
+  try {
+    const { _json } = req.user;
+
+    const email = _json.email;
+
+    const user = await ServiceProvider.findOne({
+      email,
+    });
+
+    if (!user) {
+      const encryptedPassword = await bcrypt.hash(email, 10);
+
+      await ServiceProvider.create({
+        username: _json.given_name,
+        email,
+        password: encryptedPassword,
+        profilePhoto: _json.picture,
+        name: _json.given_name,
+        isEmailVerified: true,
+      });
+    }
+  
+      // Redirect to the client-side success page
+      res.redirect(`${process.env.CLIENT_URL}/provider-success?provider=${email}`);
+  } catch (error) {
+    console.log(
+      ErrorLogConstant.authController.handleLoginErrorLog,
       error.message
     );
     res.status(HttpStatusCode.InternalServerError).json({
@@ -189,32 +230,16 @@ exports.handleLogout = async (req, res) => {
 
 exports.handleVerifySession = async (req, res) => {
   try {
-    if (!req.headers.cookie) {
-      return res.status(HttpStatusCode.Unauthorized).json({
-        status: HttpStatusConstant.UNAUTHORIZED,
-        code: HttpStatusCode.Unauthorized,
-      });
-    }
+    if (req.isAuthenticated()) {
+      const { _json } = req.user;
 
-    const accessToken = getSkillCircleSignature(req.headers.cookie);
-
-    if (!accessToken) {
-      return res.status(HttpStatusCode.Unauthorized).json({
-        status: HttpStatusConstant.UNAUTHORIZED,
-        code: HttpStatusCode.Unauthorized,
-      });
-    } else {
-      const decodedToken = await verifyToken(accessToken);
-      if (!decodedToken) {
-        return res.status(HttpStatusCode.Unauthorized).json({
-          status: HttpStatusConstant.UNAUTHORIZED,
-          code: HttpStatusCode.Unauthorized,
-        });
-      }
+      const email = _json.email;
 
       const user = await ServiceProvider.findOne({
-        userId: decodedToken.userId,
-      }).select("-password -_id -isManualAuth -createdAt -updatedAt -__v");
+        email,
+      }).select(
+        "-password -_id -isManualAuth -createdAt -updatedAt -googleId -__v"
+      );
 
       if (!user) {
         return res.status(HttpStatusCode.Unauthorized).json({
@@ -222,12 +247,54 @@ exports.handleVerifySession = async (req, res) => {
           code: HttpStatusCode.Unauthorized,
         });
       }
-
+      user.profilePhoto=_json.picture;
+    
       res.status(HttpStatusCode.Ok).json({
         status: HttpStatusConstant.OK,
         code: HttpStatusCode.Ok,
-        data: user,
+        data: {...user.toObject(),userType:"Provider"},
       });
+    } else {
+      if (!req.headers.cookie) {
+        return res.status(HttpStatusCode.Unauthorized).json({
+          status: HttpStatusConstant.UNAUTHORIZED,
+          code: HttpStatusCode.Unauthorized,
+        });
+      }
+
+      const accessToken = getProviderSignature(req.headers.cookie);
+
+      if (!accessToken) {
+        return res.status(HttpStatusCode.Unauthorized).json({
+          status: HttpStatusConstant.UNAUTHORIZED,
+          code: HttpStatusCode.Unauthorized,
+        });
+      } else {
+        const decodedToken = await verifyToken(accessToken);
+        if (!decodedToken) {
+          return res.status(HttpStatusCode.Unauthorized).json({
+            status: HttpStatusConstant.UNAUTHORIZED,
+            code: HttpStatusCode.Unauthorized,
+          });
+        }
+
+        const user = await ServiceProvider.findOne({
+          userId: decodedToken.userId,
+        }).select("-password -_id -isManualAuth -createdAt -updatedAt -__v");
+
+        if (!user) {
+          return res.status(HttpStatusCode.Unauthorized).json({
+            status: HttpStatusConstant.UNAUTHORIZED,
+            code: HttpStatusCode.Unauthorized,
+          });
+        }
+
+        res.status(HttpStatusCode.Ok).json({
+          status: HttpStatusConstant.OK,
+          code: HttpStatusCode.Ok,
+          data: user,
+        });
+      }
     }
   } catch (error) {
     console.log(

@@ -17,7 +17,7 @@ const ErrorLogConstant = require("../constants/error-log.constant");
 // Importing Helpers
 const generateUUID = require("../helpers/uuid.helper");
 const { signToken, verifyToken } = require("../helpers/jwt.helper");
-const getSkillCircleSignature = require("../helpers/cookie.helper");
+const {getSkillCircleSignature} = require("../helpers/cookie.helper");
 
 // Importing Controllers
 const handleSendEmail = require("./email.controller");
@@ -111,7 +111,6 @@ exports.handleLogin = async (req, res) => {
         message: ResponseMessageConstant.USER_NOT_FOUND,
       });
     } else {
-      
       const isValidPassword = await bcrypt.compare(password, user.password);
 
       if (isValidPassword) {
@@ -130,8 +129,8 @@ exports.handleLogin = async (req, res) => {
           .cookie(CommonConstant.signatureCookieName, generatedAccessToken, {
             maxAge: 86400000,
             httpOnly: false,
-            secure: true,
-            sameSite: "none",
+            secure: false,
+            sameSite: "lax",
           })
           .status(HttpStatusCode.Ok)
           .json({
@@ -158,7 +157,53 @@ exports.handleLogin = async (req, res) => {
   }
 };
 
+exports.handleGoogleLogin = async (req, res) => {
+  try {
+    const { _json } = req.user;
+
+    const email = _json.email;
+
+    const user = await User.findOne({
+      email,
+    });
+
+    if (!user) {
+      const encryptedPassword = await bcrypt.hash(email, 10);
+
+      await User.create({
+        username: _json.given_name,
+        email,
+        password: encryptedPassword,
+        profilePhoto: _json.picture,
+        name: _json.given_name,
+        isEmailVerified: true,
+      });
+    }
+
+      // Redirect to the client-side success page
+      res.redirect(`${process.env.CLIENT_URL}/auth-success?token=${email}`);
+  } catch (error) {
+    console.log(
+      ErrorLogConstant.authController.handleLoginErrorLog,
+      error.message
+    );
+    res.status(HttpStatusCode.InternalServerError).json({
+      status: HttpStatusConstant.ERROR,
+      code: HttpStatusCode.InternalServerError,
+    });
+  }
+};
+
 exports.handleLogout = async (req, res) => {
+  if(req.isAuthenticated()){
+    req.logout((err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: 'Logout failed' });
+      }
+      res.json({ message: 'Logged out successfully' });
+    });
+  }else{
   try {
     const accessToken = getSkillCircleSignature(req.headers.cookie);
 
@@ -186,49 +231,86 @@ exports.handleLogout = async (req, res) => {
       code: HttpStatusCode.InternalServerError,
     });
   }
+}
 };
 
 exports.handleVerifySession = async (req, res) => {
   try {
-    if (!req.headers.cookie) {
-      return res.status(HttpStatusCode.Unauthorized).json({
-        status: HttpStatusConstant.UNAUTHORIZED,
-        code: HttpStatusCode.Unauthorized,
-      });
-    }
+    if (req.isAuthenticated()) {
+      const { _json } = req.user;
 
-    const accessToken = getSkillCircleSignature(req.headers.cookie);
+      const email = _json.email;
 
-    if (!accessToken) {
-      return res.status(HttpStatusCode.Unauthorized).json({
-        status: HttpStatusConstant.UNAUTHORIZED,
-        code: HttpStatusCode.Unauthorized,
-      });
-    } else {
-      const decodedToken = await verifyToken(accessToken);
-      if (!decodedToken) {
+      const customer = await User.findOne({
+        email,
+      }).select(
+        "-password -_id -isManualAuth -createdAt -updatedAt -googleId -__v"
+      );
+
+      if (!customer) {
         return res.status(HttpStatusCode.Unauthorized).json({
           status: HttpStatusConstant.UNAUTHORIZED,
           code: HttpStatusCode.Unauthorized,
         });
       }
+      customer.profilePhoto=_json.picture;
 
-      const user = await User.findOne({
-        userId: decodedToken.userId,
-      }).select("-password -_id -isManualAuth -createdAt -updatedAt  -__v");
+      const userWithUserType = {
+        ...customer.toObject(),
+        userType: "Customer",
+      };
 
-      if (!user) {
-        return res.status(HttpStatusCode.Unauthorized).json({
-          status: HttpStatusConstant.UNAUTHORIZED,
-          code: HttpStatusCode.Unauthorized,
-        });
-      }
 
       res.status(HttpStatusCode.Ok).json({
         status: HttpStatusConstant.OK,
         code: HttpStatusCode.Ok,
-        data: user,
+        data: userWithUserType,
       });
+    } else {
+      if (!req.headers.cookie) {
+        return res.status(HttpStatusCode.Unauthorized).json({
+          status: HttpStatusConstant.UNAUTHORIZED,
+          code: HttpStatusCode.Unauthorized,
+        });
+      }
+
+      const accessToken = getSkillCircleSignature(req.headers.cookie);
+
+      if (!accessToken) {
+        return res.status(HttpStatusCode.Unauthorized).json({
+          status: HttpStatusConstant.UNAUTHORIZED,
+          code: HttpStatusCode.Unauthorized,
+        });
+      } else {
+        const decodedToken = await verifyToken(accessToken);
+        if (!decodedToken) {
+          return res.status(HttpStatusCode.Unauthorized).json({
+            status: HttpStatusConstant.UNAUTHORIZED,
+            code: HttpStatusCode.Unauthorized,
+          });
+        }
+
+        const customer = await User.findOne({
+          userId: decodedToken.userId,
+        }).select("-password -_id -isManualAuth -createdAt -updatedAt  -__v");
+
+        if (!customer) {
+          return res.status(HttpStatusCode.Unauthorized).json({
+            status: HttpStatusConstant.UNAUTHORIZED,
+            code: HttpStatusCode.Unauthorized,
+          });
+        }
+        const userWithUserType = {
+          ...customer.toObject(),
+          userType: "Customer",
+        };
+
+        res.status(HttpStatusCode.Ok).json({
+          status: HttpStatusConstant.OK,
+          code: HttpStatusCode.Ok,
+          data: userWithUserType,
+        });
+      }
     }
   } catch (error) {
     console.log(

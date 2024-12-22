@@ -44,6 +44,8 @@ module.exports = {
             "🚀 ~ file: user.controller.js ~ handleOnBoarding ~ err ",
         handleGetUserProfileInfoErrorLog:
             "🚀 ~ file: user.controller.js ~ handleGetUserProfileInfo ~ err ",
+        updateUserProfileInfoErrorLog:
+            "🚀 ~ file: user.controller.js ~ updateUser ~ err ",
     },
     serviceController: {
         handleCreateServiceErrorLog:

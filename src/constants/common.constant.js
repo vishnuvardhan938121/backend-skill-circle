@@ -1,5 +1,6 @@
 module.exports = {
     signatureCookieName: "SkillCircle-Signature",
+    signatureProviderCookieName:"Provider-SkillCircle-Signature",
     email: {
         charSet: "UTF-8",
         source: {

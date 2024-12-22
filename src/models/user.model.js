@@ -28,14 +28,27 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     address: {
-      hNo: String,
-      street: String,
-      area: String,
-      state: String,
-      country: String,
-      zipCode: String,
-      latitude: Number,
-      longitude: Number,
+      type:String,
+    },
+    street:{
+      type:String,
+    },
+    state:{
+      type:String,
+      default:"Telangana"
+    },
+    country:{
+      type:String,
+      default:"India"
+    },
+    pinCode:{
+      type:Number,
+    },
+    latitude:{
+      type:Number,
+    },
+    longitude:{
+      type:Number
     },
     profilePhoto: {
       type: String,
@@ -52,6 +65,9 @@ const userSchema = new mongoose.Schema(
         ref: "Booking",
       },
     ],
+    mobile:{
+      type:String,
+    },
     isEmailVerified: {
       type: Boolean,
       default: false,

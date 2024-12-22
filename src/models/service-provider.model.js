@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { v4: uuidv4 } = require('uuid');
 
 const serviceProviderSchema = new mongoose.Schema(
   {
@@ -6,6 +7,9 @@ const serviceProviderSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      default: () => {
+        return uuidv4();
+      },
     },
     username: {
       type: String,
@@ -20,15 +24,34 @@ const serviceProviderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    mobile:{
+      type:Number
+    },
     address: {
-      hNo: String,
-      street: String,
-      area: String,
-      state: String,
-      country: String,
-      zipCode: String,
-      latitude: Number,
-      longitude: Number,
+      type:String,
+    },
+    street:{
+      type:String,
+    },
+    state:{
+      type:String,
+      default:"Telangana"
+    },
+    country:{
+      type:String,
+      default:"India"
+    },
+    pinCode:{
+      type:Number,
+    },
+    latitude:{
+      type:Number,
+    },
+    longitude:{
+      type:Number
+    },
+    rating:{
+      type:Number,
     },
     profilePhoto: {
       type: String,
@@ -53,26 +76,18 @@ const serviceProviderSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    servicesOffered: [
-      {
-        categoryId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "ServiceCategory",
-        },
-        serviceId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Service",
-        },
-        pricingRange: {
-          min: {
-            type: Number,
-          },
-          max: {
-            type: Number,
-          },
-        },
-      },
-    ],
+    serviceCategoryId:{
+      type: String,
+    },
+    serviceId:{
+      type: String,
+    },
+    minPrice:{
+      type:Number
+    },
+    maxRating:{
+      type:Number
+    },
     experienceLevel: {
       type: String,
       enum: ["beginner", "intermediate", "expert"],
